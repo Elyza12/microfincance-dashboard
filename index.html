@@ -189,10 +189,18 @@ async function updateDashboard() {
         document.getElementById("totalLoans").innerText = loans.length;
     }
     updateTotalLoans();
+
+    async function updateOverdueLoans(){
+        const loans = await fetch(`${API_URL}?action=loans`).then(res => res.json());
+        const overdue = loans.filter((l => l.Status.toLowerCase() === "overdue").length;
+        document.getElementById("overdueLoans").innerText = overdue;
+    }
+    updateOverdueLoans();
 // Run dashboard update
 updateDashboard();
-</script>
 
+    
+</script>
 
 </body>
 </html>
