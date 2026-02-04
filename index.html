@@ -154,7 +154,8 @@ Recent Loans
 </div>
 </div>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzJPQZw9vc81-X2GzYKUB44tk7q7IJQJG7lfmVG8mAnjcBOED0Jn700WmH13-Zv2ZJTDQ/exec";
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzJPQZw9vc81-X2GzYKUB44tk7q7IJQJG7lfmVG8mAnjcBOED0Jn700WmH13-Zv2ZJTDQ/exec";
 
 async function fetchData(action) {
     const response = await fetch(`${API_URL}?action=${action}`);
@@ -203,6 +204,8 @@ async function updateDashboard() {
 
 // Run the dashboard update
 updateDashboard();
+    </script>
+
 
 
 </body>
