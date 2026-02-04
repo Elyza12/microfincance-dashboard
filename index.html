@@ -170,7 +170,10 @@ Recent Loans
 </div>
 </div>
 </div>
-
+// Put this at the very top of index.html <script>
+if(localStorage.getItem("loggedIn") !== "true"){
+    window.location.href = "login.html"; // forces login first
+}
     <script>
      const API_URL = "https://script.google.com/macros/s/AKfycbzJPQZw9vc81-X2GzYKUB44tk7q7IJQJG7lfmVG8mAnjcBOED0Jn700WmH13-Zv2ZJTDQ/exec";
 
