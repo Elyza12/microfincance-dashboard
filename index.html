@@ -35,7 +35,6 @@ body {
     border-radius: 8px;
     color: white !important;
 }
-
 .main-content {
     background: #f1f5f9;
     min-height: 100vh;
@@ -75,6 +74,7 @@ body {
             <a class="nav-link" href="#">Payments</a>
         </li>
     </ul>
+    <button id="logoutBtn" class="btn btn-danger mt-3 w-100">Logout</button>
 </div>
 
 <div class="main-content flex-grow-1">
@@ -172,9 +172,8 @@ Recent Loans
 </div>
     
     <script>
-       // Redirect to login if not logged in
-if(localStorage.getItem("loggedIn") !== "true"){
-    window.location.href = "login.html";
+    if(localStorage.getItem("loggedIn") !== "true"){
+        window.location.href = "login.html";
 }
      const API_URL = "https://script.google.com/macros/s/AKfycbzJPQZw9vc81-X2GzYKUB44tk7q7IJQJG7lfmVG8mAnjcBOED0Jn700WmH13-Zv2ZJTDQ/exec";
 
@@ -330,6 +329,10 @@ updateRecentLoans();
 
 // Run the dashboard update
 updateDashboard();
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("loggedIn");
+    window.location.href = "login.html";
+});
     </script>
 
 
