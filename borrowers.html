@@ -65,12 +65,12 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzJPQZw9vc81-X2GzYKUB44tk7q7IJQJG7lfmVG8mAnjcBOED0Jn700WmH13-Zv2ZJTDQ/exec";
 
-// Redirect if not logged in
+// Redirect to login if not logged in
 if(localStorage.getItem("loggedIn") !== "true"){
     window.location.href = "login.html";
 }
 
-// Fetch borrowers
+// Fetch borrowers from API
 async function fetchBorrowers() {
     try {
         const response = await fetch(`${API_URL}?action=borrowers`);
@@ -82,107 +82,106 @@ async function fetchBorrowers() {
     }
 }
 
-// Load table
+// Load borrowers table
 async function loadBorrowersTable() {
     const borrowers = await fetchBorrowers();
     const table = document.getElementById("borrowersTable");
     table.innerHTML = "";
 
-    borrowers.forEach(b => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${b.BorrowerID}</td>
-            <td>${b.FullName}</td>
-            <td>${b.Status}</td>
-            <td>
-                <button class="btn btn-sm btn-primary editBtn" 
-                        data-id="${b.BorrowerID}" 
-                        data-name="${b.FullName}" 
-                        data-status="${b.Status}">Edit</button>
-                <button class="btn btn-sm btn-danger deleteBtn" 
-                        data-id="${b.BorrowerID}">Delete</button>
-            </td>
+    borrowers.forEach(borrower => {
+        const row = `
+            <tr>
+                <td>${borrower.BorrowerID}</td>
+                <td>${borrower.FullName}</td>
+                <td>${borrower.Status}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary editBtn"
+                        data-id="${borrower.BorrowerID}"
+                        data-name="${borrower.FullName}"
+                        data-status="${borrower.Status}">
+                        Edit
+                    </button>
+                    <button class="btn btn-sm btn-danger deleteBtn"
+                        data-id="${borrower.BorrowerID}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
         `;
-        table.appendChild(row);
+        table.innerHTML += row;
     });
 }
 
-// Search borrowers
-document.getElementById("searchBorrower").addEventListener("input", function() {
-    const term = this.value.toLowerCase();
-    document.querySelectorAll("#borrowersTable tr").forEach(row => {
-        const id = row.cells[0].innerText.toLowerCase();
-        const name = row.cells[1].innerText.toLowerCase();
-        row.style.display = (id.includes(term) || name.includes(term)) ? "" : "none";
-    });
-});
+// Edit/ Delete click events
+document.addEventListener("click", async function(e) {
 
-// Click events for Edit/Delete
-document.addEventListener("click", function(e) {
-    // Edit
+    // DELETE
+    if(e.target.classList.contains("deleteBtn")) {
+        const id = e.target.getAttribute("data-id");
+        const confirmed = confirm("Are you sure you want to delete this borrower?");
+        if(confirmed) {
+            await deleteBorrower(id);
+        }
+        return;
+    }
+
+    // EDIT
     if(e.target.classList.contains("editBtn")) {
-        const id = e.target.dataset.id;
-        const name = e.target.dataset.name;
-        const status = e.target.dataset.status;
+        const id = e.target.getAttribute("data-id");
+        const name = e.target.getAttribute("data-name");
+        const status = e.target.getAttribute("data-status");
 
+        // Use prompts for simplicity
         const newName = prompt("Edit Name:", name);
         if(!newName) return;
+
         const newStatus = prompt("Edit Status (Active/Inactive):", status);
         if(!newStatus) return;
 
-        updateBorrower(id, newName, newStatus);
-    }
-
-    // Delete
-    if(e.target.classList.contains("deleteBtn")) {
-        const id = e.target.dataset.id;
-        if(confirm("Are you sure you want to delete this borrower?")) {
-            deleteBorrower(id);
-        }
+        await updateBorrower(id, newName, newStatus);
     }
 });
 
-// API functions
+// Update borrower function
 async function updateBorrower(id, name, status) {
-    await fetch(`${API_URL}?action=updateBorrower&id=${id}&name=${encodeURIComponent(name)}&status=${encodeURIComponent(status)}`);
-    loadBorrowersTable();
-}
-
-async function deleteBorrower(id) {
-    await fetch(`${API_URL}?action=deleteBorrower&id=${id}`);
-    loadBorrowersTable();
-}
-
-// Add Borrower Modal
-const borrowerModal = new bootstrap.Modal(document.getElementById('borrowerModal'));
-document.getElementById("addBorrowerBtn").addEventListener("click", () => {
-    document.getElementById("modalTitle").innerText = "Add Borrower";
-    document.getElementById("borrowerId").value = "";
-    document.getElementById("borrowerName").value = "";
-    document.getElementById("borrowerStatus").value = "Active";
-    borrowerModal.show();
-});
-
-// Add/Edit Borrower form
-document.getElementById("borrowerForm").addEventListener("submit", async function(e){
-    e.preventDefault();
-    const id = document.getElementById("borrowerId").value;
-    const name = document.getElementById("borrowerName").value;
-    const status = document.getElementById("borrowerStatus").value;
-
-    if(id) {
+    try {
         await fetch(`${API_URL}?action=updateBorrower&id=${id}&name=${encodeURIComponent(name)}&status=${encodeURIComponent(status)}`);
-    } else {
-        await fetch(`${API_URL}?action=addBorrower&name=${encodeURIComponent(name)}&status=${encodeURIComponent(status)}`);
+        await loadBorrowersTable(); // Refresh table after update
+    } catch(error) {
+        console.error("Error updating borrower:", error);
     }
+}
 
-    borrowerModal.hide();
-    loadBorrowersTable();
+// Delete borrower function
+async function deleteBorrower(id) {
+    try {
+        await fetch(`${API_URL}?action=deleteBorrower&id=${id}`);
+        await loadBorrowersTable(); // Refresh table after delete
+    } catch(error) {
+        console.error("Error deleting borrower:", error);
+    }
+}
+
+// SEARCH functionality
+document.getElementById("searchBorrower").addEventListener("input", function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll("#borrowersTable tr");
+
+    rows.forEach(row => {
+        const id = row.cells[0].innerText.toLowerCase();
+        const name = row.cells[1].innerText.toLowerCase();
+        if(id.includes(searchTerm) || name.includes(searchTerm)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
 });
 
-// Initial load
+// Run table on page load
 loadBorrowersTable();
 </script>
+
 
 </body>
 </html>
