@@ -24,6 +24,9 @@
         <th>Contact</th>
       </tr>
     </thead>
+    <div class="mb-3 d-flex justify-content-between">
+      <button class="btn btn-success" id="addBorrowerBtn">Add Borrower</button>
+      <div>
     <tbody id="borrowersTable">
       <!-- Data will be filled dynamically -->
     </tbody>
@@ -91,7 +94,68 @@ async function fillBorrowersTable() {
 
 // Run the function when page loads
 fillBorrowersTable();
+    // Bootstrap modal
+const borrowerModal = new bootstrap.Modal(document.getElementById('borrowerModal'));
+
+// Add Borrower Button click
+document.getElementById("addBorrowerBtn").addEventListener("click", () => {
+    document.getElementById("modalTitle").innerText = "Add Borrower";
+    document.getElementById("borrowerId").value = "";
+    document.getElementById("borrowerName").value = "";
+    document.getElementById("borrowerStatus").value = "Active";
+    borrowerModal.show();
+});
+
+// Handle form submit
+document.getElementById("borrowerForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const id = document.getElementById("borrowerId").value;
+    const name = document.getElementById("borrowerName").value;
+    const status = document.getElementById("borrowerStatus").value;
+
+    if(id){ 
+        // Edit borrower
+        await fetchData(`editBorrower&id=${id}&name=${name}&status=${status}`);
+    } else {
+        // Add new borrower
+        await fetchData(`addBorrower&name=${name}&status=${status}`);
+    }
+
+    borrowerModal.hide();
+    loadBorrowersTable(); // refresh table
+});
+
 </script>
+      
+<!-- Borrower Modal -->
+<div class="modal fade" id="borrowerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Add Borrower</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="borrowerForm">
+          <input type="hidden" id="borrowerId">
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="borrowerName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select id="borrowerStatus" class="form-control">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
