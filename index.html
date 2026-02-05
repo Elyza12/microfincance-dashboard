@@ -170,12 +170,12 @@ Recent Loans
 </div>
 </div>
 </div>
-        // Redirect to login if not logged in
+    
+    <script>
+       // Redirect to login if not logged in
 if(localStorage.getItem("loggedIn") !== "true"){
     window.location.href = "login.html";
 }
-    <script>
-   
      const API_URL = "https://script.google.com/macros/s/AKfycbzJPQZw9vc81-X2GzYKUB44tk7q7IJQJG7lfmVG8mAnjcBOED0Jn700WmH13-Zv2ZJTDQ/exec";
 
 async function fetchData(action) {
@@ -262,10 +262,10 @@ if(!payments || payments.length === 0){
     // Loan Status Pie Chart
     // ---------------------------
     const loanStatusCounts = {
-        Active: loans.filter(l => l.Status.toLowerCase() === "active").length,
-        Paid: loans.filter(l => l.Status.toLowerCase() === "paid").length,
-        Overdue: loans.filter(l => l.Status.toLowerCase() === "overdue").length
-    };
+    Active: loans.filter(l => l.Status?.trim().toLowerCase() === "active").length,
+    Paid: loans.filter(l => l.Status?.trim().toLowerCase() === "paid").length,
+    Overdue: loans.filter(l => l.Status?.trim().toLowerCase() === "overdue").length
+};
 
     new Chart(document.getElementById("loanStatusChart"), {
         type: 'pie',
