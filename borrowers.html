@@ -71,25 +71,34 @@ async function fetchBorrowers() {
 }
 
 // Function to fill table
-async function fillBorrowersTable() {
+async function loadBorrowersTable() {
     const borrowers = await fetchBorrowers();
     const table = document.getElementById("borrowersTable");
-
-    // Clear existing rows
     table.innerHTML = "";
 
     // Add each borrower as a row
-    borrowers.forEach(b => {
-        const row = `
-            <tr>
-                <td>${b.BorrowerID}</td>
-                <td>${b.FullName}</td>
-                <td>${b.Status}</td>
-                <td>${b.Contact || ""}</td>
-            </tr>
-        `;
-        table.innerHTML += row;
-    });
+    borrowers.forEach(borrower => {
+    const row = `
+        <tr>
+            <td>${borrower.FullName}</td>
+            <td>${borrower.Status}</td>
+            <td>
+                <button class="btn btn-sm btn-primary editBtn" 
+                        data-id="${borrower.BorrowerID}" 
+                        data-name="${borrower.FullName}" 
+                        data-status="${borrower.Status}">
+                    Edit
+                </button>
+                <button class="btn btn-sm btn-danger deleteBtn" 
+                        data-id="${borrower.BorrowerID}">
+                    Delete
+                </button>
+            </td>
+        </tr>
+    `;
+    table.innerHTML += row;
+});
+
 }
 
 // Run the function when page loads
