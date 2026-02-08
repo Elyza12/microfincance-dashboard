@@ -120,19 +120,20 @@ document.addEventListener("click", async function(e) {
 
     // EDIT
     if(e.target.classList.contains("editBtn")) {
-        const id = e.target.getAttribute("data-id");
-        const name = e.target.getAttribute("data-name");
-        const status = e.target.getAttribute("data-status");
+    const id = e.target.getAttribute("data-id");
+    const name = e.target.getAttribute("data-name");
+    const status = e.target.getAttribute("data-status");
 
-        // Use prompts for simplicity
-        const newName = prompt("Edit Name:", name);
-        if(!newName) return;
+    // Fill the modal form
+    document.getElementById("borrowerId").value = id;
+    document.getElementById("borrowerName").value = name;
+    document.getElementById("borrowerStatus").value = status;
+    document.getElementById("modalTitle").innerText = "Edit Borrower";
 
-        const newStatus = prompt("Edit Status (Active/Inactive):", status);
-        if(!newStatus) return;
+    // Show the modal
+    borrowerModal.show();
+}
 
-        await updateBorrower(id, newName, newStatus);
-    }
 });
 
 // Update borrower function
@@ -189,21 +190,28 @@ document.getElementById("addBorrowerBtn").addEventListener("click", function() {
 document.getElementById("borrowerForm").addEventListener("submit", async function(e){
     e.preventDefault();
 
-    const id = document.getElementById("borrowerId").value; // will be empty for Add
+    const id = document.getElementById("borrowerId").value; // empty = Add, has value = Edit
     const name = document.getElementById("borrowerName").value.trim();
     const status = document.getElementById("borrowerStatus").value;
 
     if(!name) return alert("Please enter the borrower's name");
 
     try {
-        // Call the Apps Script API
-        await fetch(`${API_URL}?action=addBorrower&name=${encodeURIComponent(name)}&status=${encodeURIComponent(status)}`);
+        if(id) {
+            // EDIT
+            await fetch(`${API_URL}?action=updateBorrower&id=${id}&name=${encodeURIComponent(name)}&status=${encodeURIComponent(status)}`);
+        } else {
+            // ADD
+            await fetch(`${API_URL}?action=addBorrower&name=${encodeURIComponent(name)}&status=${encodeURIComponent(status)}`);
+        }
+
         borrowerModal.hide();
         loadBorrowersTable(); // Refresh table
     } catch(error) {
-        console.error("Error adding borrower:", error);
+        console.error("Error saving borrower:", error);
     }
 });
+
 
 </script>
 
